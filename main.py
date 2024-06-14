@@ -4,6 +4,7 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
 from torchvision.models import vit_b_16, ViT_B_16_Weights
+from tqdm import tqdm
 
 # 1. 设置设备
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -18,17 +19,24 @@ transform = transforms.Compose([
 trainset = torchvision.datasets.CIFAR100(root='./data', train=True,
                                         download=True, transform=transform)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=64,
-                                          shuffle=True)
+                                          shuffle=True, num_workers=8)
 
 testset = torchvision.datasets.CIFAR100(root='./data', train=False,
                                        download=True, transform=transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=64,
-                                         shuffle=False)
+                                         shuffle=False, num_workers=8)
 
 # 3. 定义ViT模型
-weights = ViT_B_16_Weights.DEFAULT
-model = vit_b_16(weights=weights)
-model.heads[0] = nn.Linear(model.heads[0].in_features, 100)  # 修改分类头为100类
+
+# from transformers import ViTForImageClassification, ViTFeatureExtractor
+from model import ViTForImageClassification
+
+# 加载预训练的 ViT 模型和特征提取器
+model = ViTForImageClassification.from_pretrained('vit-base-patch16-224-in21k', num_labels=100)
+
+# weights = ViT_B_16_Weights.DEFAULT
+# model = vit_b_16(weights=weights)
+# model.heads[0] = nn.Linear(model.heads[0].in_features, 100)  # 修改分类头为100类
 
 # 如果有可用的GPU，则将模型转到GPU
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -39,15 +47,15 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # 5. 训练模型
-for epoch in range(10):  # 遍历数据集多次
+for epoch in range(5):  # 遍历数据集多次
     running_loss = 0.0
-    for i, data in enumerate(trainloader, 0):
+    for i, data in tqdm(enumerate(trainloader, 0)):
         inputs, labels = data
         inputs, labels = inputs.to(device), labels.to(device)
 
         optimizer.zero_grad()
 
-        outputs = model(inputs)
+        outputs = model(inputs).logits
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
@@ -56,6 +64,21 @@ for epoch in range(10):  # 遍历数据集多次
         if i % 200 == 199:  # 每200个批次打印一次
             print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 200:.3f}')
             running_loss = 0.0
+            torch.save(model.state_dict(), "./last_ckpt.pth")
+
+            # check
+            correct = 0
+            total = 0
+            with torch.no_grad():
+                for data in testloader:
+                    images, labels = data
+                    images, labels = images.to(device), labels.to(device)
+                    outputs = model(images)
+                    _, predicted = torch.max(outputs.logits.data, 1)
+                    total += labels.size(0)
+                    correct += (predicted == labels).sum().item()
+
+print(f'Accuracy of the network on the 10000 test images: {100 * correct // total} %')
 
 print('Finished Training')
 
