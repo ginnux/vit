@@ -6,6 +6,9 @@ import torchvision.transforms as transforms
 from torchvision.models import vit_b_16, ViT_B_16_Weights
 from tqdm import tqdm
 
+
+load = False
+
 # 1. 设置设备
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -32,7 +35,24 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=64,
 from model import ViTForImageClassification
 
 # 加载预训练的 ViT 模型和特征提取器
-model = ViTForImageClassification.from_pretrained('vit-base-patch16-224-in21k', num_labels=100)
+
+'''
+# 1k版本
+if load:
+    model = ViTForImageClassification.from_pretrained('vit-base-patch16-224')
+    model.load_state_dict(torch.load('last_ckpt.pth'))
+else:
+    model = ViTForImageClassification.from_pretrained('vit-base-patch16-224')
+    
+model.classifier = nn.Linear(model.classifier.in_features, 100)
+'''
+# 21k版本
+if load:
+    model = ViTForImageClassification.from_pretrained('vit-base-patch16-224-in21k', num_labels=100)
+    model.load_state_dict(torch.load('last_ckpt.pth'))
+else:
+    model = ViTForImageClassification.from_pretrained('vit-base-patch16-224-in21k', num_labels=100)
+
 
 # weights = ViT_B_16_Weights.DEFAULT
 # model = vit_b_16(weights=weights)
@@ -44,12 +64,12 @@ model.to(device)
 
 # 4. 定义损失函数和优化器
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.AdamW(model.parameters(), lr=3e-5)
 
 # 5. 训练模型
 for epoch in range(5):  # 遍历数据集多次
     running_loss = 0.0
-    for i, data in tqdm(enumerate(trainloader, 0)):
+    for i, data in enumerate(tqdm(trainloader), 0):
         inputs, labels = data
         inputs, labels = inputs.to(device), labels.to(device)
 
@@ -66,19 +86,18 @@ for epoch in range(5):  # 遍历数据集多次
             running_loss = 0.0
             torch.save(model.state_dict(), "./last_ckpt.pth")
 
-            # check
-            correct = 0
-            total = 0
-            with torch.no_grad():
-                for data in testloader:
-                    images, labels = data
-                    images, labels = images.to(device), labels.to(device)
-                    outputs = model(images)
-                    _, predicted = torch.max(outputs.logits.data, 1)
-                    total += labels.size(0)
-                    correct += (predicted == labels).sum().item()
-
-print(f'Accuracy of the network on the 10000 test images: {100 * correct // total} %')
+    # check
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for data in testloader:
+            images, labels = data
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs.logits.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+    print(f'Accuracy of the network on the 10000 test images: {100 * correct // total} %')
 
 print('Finished Training')
 
@@ -90,7 +109,7 @@ with torch.no_grad():
         images, labels = data
         images, labels = images.to(device), labels.to(device)
         outputs = model(images)
-        _, predicted = torch.max(outputs.data, 1)
+        _, predicted = torch.max(outputs.logits.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
