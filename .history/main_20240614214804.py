@@ -6,10 +6,9 @@ import torchvision.transforms as transforms
 from torchvision.models import vit_b_16, ViT_B_16_Weights
 from tqdm import tqdm
 from eval import eval
-from config import get_config
 
-config = get_config()
 
+load = False
 
 # 1. 设置设备
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -44,20 +43,26 @@ from model import ViTForImageClassification
 
 # 加载预训练的 ViT 模型和特征提取器
 
+"""
 # 1k版本
-if config["pretrained_model"] == "vit-base-patch16-224":
-    model = ViTForImageClassification.from_pretrained("vit-base-patch16-224")
-    model.classifier = nn.Linear(model.classifier.in_features, 100)
+if load:
+    model = ViTForImageClassification.from_pretrained('vit-base-patch16-224')
+    model.load_state_dict(torch.load('last_ckpt.pth'))
+else:
+    model = ViTForImageClassification.from_pretrained('vit-base-patch16-224')
+    
+model.classifier = nn.Linear(model.classifier.in_features, 100)
+"""
 # 21k版本
-elif config["pretrained_model"] == "vit-base-patch16-224-in21k":
+if load:
     model = ViTForImageClassification.from_pretrained(
         "vit-base-patch16-224-in21k", num_labels=100
     )
-else:
-    raise ValueError("Please provide a valid model name.")
-
-if config["load_last_checkpoint"]:
     model.load_state_dict(torch.load("last_ckpt.pth"))
+else:
+    model = ViTForImageClassification.from_pretrained(
+        "vit-base-patch16-224-in21k", num_labels=100
+    )
 
 
 # weights = ViT_B_16_Weights.DEFAULT
@@ -65,6 +70,7 @@ if config["load_last_checkpoint"]:
 # model.heads[0] = nn.Linear(model.heads[0].in_features, 100)  # 修改分类头为100类
 
 # 如果有可用的GPU，则将模型转到GPU
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
 # 4. 定义损失函数和优化器

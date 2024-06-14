@@ -65,6 +65,7 @@ if config["load_last_checkpoint"]:
 # model.heads[0] = nn.Linear(model.heads[0].in_features, 100)  # 修改分类头为100类
 
 # 如果有可用的GPU，则将模型转到GPU
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
 # 4. 定义损失函数和优化器
