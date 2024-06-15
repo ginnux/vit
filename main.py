@@ -72,7 +72,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.AdamW(model.parameters(), lr=3e-5)
 
 # 5. 训练模型
-for epoch in range(5):  # 遍历数据集多次
+for epoch in range(config["epochs"]):  # 遍历数据集多次
     running_loss = 0.0
     for i, data in enumerate(tqdm(trainloader), 0):
         inputs, labels = data
