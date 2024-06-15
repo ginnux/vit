@@ -36,7 +36,7 @@ def visualize(testloader=None, model=None):
 
     labels_name = testset.classes
     with torch.no_grad():
-        choose_image = 4  # 要提取的批次索引（从1开始）
+        choose_image = 3  # 要提取的批次索引（从1开始）
 
         data = next(islice(iter(testloader), choose_image - 1, choose_image))
 
@@ -53,7 +53,6 @@ def visualize(testloader=None, model=None):
         att_mat = outputs.attentions
         att_mat = torch.stack(att_mat).squeeze(1).cpu()
         image = images.squeeze(dim=0)
-        print(att_mat.shape)
 
         image_np = image.permute(1, 2, 0).cpu().numpy()
 
@@ -62,8 +61,7 @@ def visualize(testloader=None, model=None):
 
         image_bgr = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
         im = image_np
-    
-        cv2.imwrite("tempim.png",image_bgr)
+        # cv2.imwrite("tempim.png",image_bgr)
 
 
         # Average the attention weights across all heads.
@@ -89,17 +87,23 @@ def visualize(testloader=None, model=None):
         mask = cv2.resize(mask / mask.max(), im.shape[:2])[..., np.newaxis]
         result = (mask * im).astype("uint8")
 
-        fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(16, 16))
-
-        ax1.set_title('Original')
-        ax2.set_title('Attention Map')
-        _ = ax1.imshow(im)
-        _ = ax2.imshow(result)
-
-        plt.savefig("temp.png")
 
 
+        plt.figure(figsize = (12,4))
 
+        plt.subplot(1,3,1)
+        plt.title('Original')
+        plt.imshow(im)
+
+        plt.subplot(1,3,2)
+        plt.title("Attention")
+        plt.imshow(mask, cmap='gray')
+
+        plt.subplot(1,3,3)
+        plt.title('Attention Map')
+        plt.imshow(result)
+
+        plt.savefig("visualize.png")
 
 
 
