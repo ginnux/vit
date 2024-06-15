@@ -5,9 +5,11 @@ import torchvision.transforms as transforms
 from tqdm import tqdm
 
 
+
 def eval(testloader=None, model=None):
     # 评估模型
     correct = 0
+    correct_top5 = 0
     total = 0
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if model is None:
@@ -34,12 +36,25 @@ def eval(testloader=None, model=None):
             images, labels = data
             images, labels = images.to(device), labels.to(device)
             outputs = model(images)
+
+            # ACC@1
             _, predicted = torch.max(outputs.logits.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
+            # ACC@5
+            _, predicted_top5 = torch.topk(outputs.logits, k=5, dim=1)  # 获取top5预测结果的索引
+            labels_expanded = labels.view(-1, 1).expand_as(predicted_top5)  # 扩展真实标签的形状以便比较
+            correct_top5 += torch.sum(torch.any(predicted_top5 == labels_expanded, dim=1)).item()  # 统计包含真实标签的top5预测数量
+
+    # ACC@1
     accuracy = correct / total
+
+    # ACC@5
+    accuracy_top5 = correct_top5
+
     print(f"Accuracy of the network on CIFAR100 test images: {accuracy:.2%}")
+    print(f"Accuracy-Top5 of the network on CIFAR100 test images: {accuracy_top5:.2%}")
 
 if __name__ == "__main__":
     eval()
