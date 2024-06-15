@@ -2,6 +2,7 @@ import torch
 import torchvision
 from model import ViTForImageClassification
 import torchvision.transforms as transforms
+from tqdm import tqdm
 
 
 def eval(testloader=None, model=None):
@@ -29,7 +30,7 @@ def eval(testloader=None, model=None):
                                                  shuffle=False, num_workers=8)
 
     with torch.no_grad():
-        for data in testloader:
+        for data in tqdm(testloader):
             images, labels = data
             images, labels = images.to(device), labels.to(device)
             outputs = model(images)
