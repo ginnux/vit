@@ -1,0 +1,11 @@
+# data
+data/
+
+# pre
+vit-base-patch16-224-in21k/
+
+# cache
+__pycache__/
+
+# pth
+last_ckpt.pth
