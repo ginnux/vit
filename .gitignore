@@ -3,6 +3,7 @@ data/
 
 # pre
 vit-base-patch16-224-in21k/
+google/
 
 # cache
 __pycache__/

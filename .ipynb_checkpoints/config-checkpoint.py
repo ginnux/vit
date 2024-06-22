@@ -5,6 +5,6 @@ def get_config():
     config["num_workers"] = 8
     config["pretrained_model"] = "google/vit-base-patch16-224-in21k"
     config["load_last_checkpoint"] = False
-    config["epochs"] = 5
+    config["epochs"] = 2
 
     return config
