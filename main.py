@@ -67,7 +67,7 @@ model.to(device)
 
 # 4. 定义损失函数和优化器
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.AdamW(model.parameters(), lr=3e-5)
+optimizer = optim.AdamW(model.parameters(), lr=config["learning_rate"])
 
 # 5. 训练模型
 for epoch in range(config["epochs"]):  # 遍历数据集多次
