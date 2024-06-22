@@ -88,8 +88,8 @@ for epoch in range(config["epochs"]):  # 遍历数据集多次
 
         running_loss += loss.item()
         if i % 200 == 199:  # 每200个批次打印一次
-            with open("log.txt","w") as f:
-                f.writeline(f"[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 200:.3f}")
+            with open("log.txt","w+") as f:
+                f.write(f"[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 200:.3f}\n")
             print(f"[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 200:.3f}")
             running_loss = 0.0
             # 保存checkpoints

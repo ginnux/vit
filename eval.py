@@ -53,6 +53,10 @@ def eval(testloader=None, model=None):
     # ACC@5
     accuracy_top5 = correct_top5 / total
 
+    with open("log.txt","w+") as f:
+        f.write(f"Accuracy of the network on CIFAR100 test images: {accuracy:.2%}\n")
+        f.write(f"Accuracy-Top5 of the network on CIFAR100 test images: {accuracy_top5:.2%}\n")
+
     print(f"Accuracy of the network on CIFAR100 test images: {accuracy:.2%}")
     print(f"Accuracy-Top5 of the network on CIFAR100 test images: {accuracy_top5:.2%}")
 
