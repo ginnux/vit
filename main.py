@@ -10,6 +10,7 @@ from config import get_config
 import torch.optim.lr_scheduler as lr_scheduler
 import json
 import time
+import os
 
 config = get_config()
 
@@ -106,7 +107,9 @@ for epoch in range(config["epochs"]):  # 遍历数据集多次
     eval(testloader, model)
 
 timestamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
-with open(f"loss_{timestamp}.json", "w") as f:
+if not os.path.exists("loss_log"):
+    os.mkdir("loss_log")
+with open(f"loss_log/loss_{timestamp}.json", "w") as f:
     json.dump(loss_list, f)
 
 print("Finished Training")
