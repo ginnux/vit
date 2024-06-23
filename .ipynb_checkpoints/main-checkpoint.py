@@ -7,6 +7,9 @@ from torchvision.models import vit_b_16, ViT_B_16_Weights
 from tqdm import tqdm
 from eval import eval
 from config import get_config
+import torch.optim.lr_scheduler as lr_scheduler
+import json
+import time
 
 config = get_config()
 
@@ -68,8 +71,11 @@ model.to(device)
 # 4. 定义损失函数和优化器
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.AdamW(model.parameters(), lr=config["learning_rate"])
+scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
 
 # 5. 训练模型
+loss_list = []
+
 for epoch in range(config["epochs"]):  # 遍历数据集多次
     running_loss = 0.0
     for i, data in enumerate(tqdm(trainloader), 0):
@@ -83,13 +89,23 @@ for epoch in range(config["epochs"]):  # 遍历数据集多次
         loss.backward()
         optimizer.step()
 
+        loss_list.append(loss.item())
+
         running_loss += loss.item()
         if i % 200 == 199:  # 每200个批次打印一次
+            with open("log.txt", "a") as f:
+                f.write(f"[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 200:.3f}\n")
             print(f"[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 200:.3f}")
             running_loss = 0.0
             # 保存checkpoints
             torch.save(model.state_dict(), "./last_ckpt.pth")
+    # 更新学习率
+    scheduler.step()
 
     eval(testloader, model)
+
+timestamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
+with open(f"loss_{timestamp}.json", "w") as f:
+    json.dump(loss_list, f)
 
 print("Finished Training")

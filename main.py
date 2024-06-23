@@ -47,15 +47,16 @@ from model import ViTForImageClassification
 
 # 加载预训练的 ViT 模型和特征提取器
 
+
 # 1k版本
-if config["pretrained_model"] == "vit-base-patch16-224":
-    model = ViTForImageClassification.from_pretrained("vit-base-patch16-224")
-    model.classifier = nn.Linear(model.classifier.in_features, 100)
+model = ViTForImageClassification.from_pretrained(config["pretrained_model"])
+model.classifier = nn.Linear(model.classifier.in_features, 100)
+
+'''
 # 21k版本
-else:
-    model = ViTForImageClassification.from_pretrained(
-        config["pretrained_model"], num_labels=100
-    )
+model = ViTForImageClassification.from_pretrained(
+    config["pretrained_model"], num_labels=100
+'''
 
 if config["load_last_checkpoint"]:
     model.load_state_dict(torch.load("last_ckpt.pth"))
