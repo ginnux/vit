@@ -8,8 +8,6 @@ from tqdm import tqdm
 from eval import eval
 from config import get_config
 import torch.optim.lr_scheduler as lr_scheduler
-import json
-import time
 
 config = get_config()
 
@@ -103,9 +101,5 @@ for epoch in range(config["epochs"]):  # 遍历数据集多次
     scheduler.step()
 
     eval(testloader, model)
-
-timestamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
-with open(f"loss_{timestamp}.json", "w") as f:
-    json.dump(loss_list, f)
 
 print("Finished Training")
