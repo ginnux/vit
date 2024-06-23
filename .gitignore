@@ -5,6 +5,7 @@ data/
 vit-base-patch16-224-in21k/
 google/
 WinKawaks/
+pth/
 
 # cache
 __pycache__/
