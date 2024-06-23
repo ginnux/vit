@@ -1,2 +1,27 @@
 Accuracy of the network on CIFAR100 test images: 91.13%
 Accuracy-Top5 of the network on CIFAR100 test images: 98.76%
+[1,   200] loss: 4.176
+[1,   400] loss: 3.126
+[1,   600] loss: 2.275
+Accuracy of the network on CIFAR100 test images: 89.17%
+Accuracy-Top5 of the network on CIFAR100 test images: 98.67%
+[2,   200] loss: 1.202
+[2,   400] loss: 1.003
+[2,   600] loss: 0.850
+Accuracy of the network on CIFAR100 test images: 90.75%
+Accuracy-Top5 of the network on CIFAR100 test images: 98.96%
+[3,   200] loss: 0.580
+[3,   400] loss: 0.542
+[3,   600] loss: 0.490
+Accuracy of the network on CIFAR100 test images: 91.44%
+Accuracy-Top5 of the network on CIFAR100 test images: 98.97%
+[4,   200] loss: 0.398
+[4,   400] loss: 0.390
+[4,   600] loss: 0.370
+Accuracy of the network on CIFAR100 test images: 91.29%
+Accuracy-Top5 of the network on CIFAR100 test images: 98.89%
+[5,   200] loss: 0.336
+[5,   400] loss: 0.326
+[5,   600] loss: 0.311
+Accuracy of the network on CIFAR100 test images: 91.15%
+Accuracy-Top5 of the network on CIFAR100 test images: 98.95%

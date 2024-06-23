@@ -1,0 +1,2 @@
+Accuracy of the network on CIFAR100 test images: 70.63%
+Accuracy-Top5 of the network on CIFAR100 test images: 88.86%
