@@ -3,11 +3,10 @@ from matplotlib.ticker import PercentFormatter
 import re
 import numpy as np
 
-"""
-# 非linux下使用调整字体
+
+# 修改全局配置
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["font.size"] = 13
-"""
 
 with open("log.txt", "r") as f:
     lines = f.read()

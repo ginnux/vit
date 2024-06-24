@@ -3,11 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-"""
-# 非linux下使用调整字体
+# 修改全局配置
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["font.size"] = 13
-"""
 
 small_path = "loss_log/loss_2024-06-23-22-48-30.json"
 base_path = "loss_log/loss_2024-06-23-22-39-45.json"
