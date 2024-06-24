@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Load data
-with open("figure/large.pkl", "rb") as f:
+with open("figure/visualize.pkl", "rb") as f:
     data = pickle.load(f)
 
 # Plot
@@ -23,7 +23,7 @@ for i in range(num):
 
     plt.subplot(num, 3, 3 * i + 1)
     plt.axis("off")
-    plt.title(f"NO.{i+1} Picture: {label_name}")
+    plt.title(f"NO.{i+1} picture: {label_name}")
     plt.imshow(im)
 
     plt.subplot(num, 3, 3 * i + 2)
@@ -37,4 +37,4 @@ for i in range(num):
     plt.imshow(result)
 
 plt.tight_layout()
-plt.savefig("figure/visualize.pdf")
+plt.show()

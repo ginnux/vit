@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Load data
-with open("figure/large.pkl", "rb") as f:
+with open("figure/small.pkl", "rb") as f:
     data = pickle.load(f)
 
 # Plot

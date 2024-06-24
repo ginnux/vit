@@ -10,17 +10,15 @@ import json
 import torch.nn as nn
 
 
-def visualize(num, testloader=None, model=None, load=None):
 
+
+def visualize(num, testloader=None, model=None, load = None):
+    
     # 可视化
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if model is None:
         try:
-            model = ViTForImageClassification.from_pretrained(
-                "google/vit-base-patch16-224",
-                output_attentions=True,
-                attn_implementation="eager",
-            )
+            model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224", output_attentions = True, attn_implementation="eager")
             model.classifier = nn.Linear(model.classifier.in_features, 100)
             model.load_state_dict(torch.load("pth/base.pth"))
             model.to(device)
@@ -28,9 +26,7 @@ def visualize(num, testloader=None, model=None, load=None):
             raise ValueError("Please provide a model to evaluate.")
     else:
         try:
-            model = ViTForImageClassification.from_pretrained(
-                model, output_attentions=True, attn_implementation="eager"
-            )
+            model = ViTForImageClassification.from_pretrained(model, output_attentions = True, attn_implementation="eager")
             model.classifier = nn.Linear(model.classifier.in_features, 100)
             model.load_state_dict(torch.load(load))
             model.to(device)
@@ -39,19 +35,15 @@ def visualize(num, testloader=None, model=None, load=None):
 
     if testloader is None:
         # 加载并预处理CIFAR-100数据集
-        transform = transforms.Compose(
-            [
-                transforms.Resize((224, 224)),  # ViT期望的输入尺寸
-                transforms.ToTensor(),
-                transforms.Normalize(0.5, 0.5),
-            ]
-        )
-        testset = torchvision.datasets.CIFAR100(
-            root="./data", train=False, download=True, transform=transform
-        )
-        testloader = torch.utils.data.DataLoader(
-            testset, batch_size=1, shuffle=False, num_workers=8
-        )
+        transform = transforms.Compose([
+            transforms.Resize((224, 224)),  # ViT期望的输入尺寸
+            transforms.ToTensor(),
+            transforms.Normalize(0.5, 0.5)
+        ])
+        testset = torchvision.datasets.CIFAR100(root='./data', train=False,
+                                       download=True, transform=transform)
+        testloader = torch.utils.data.DataLoader(testset, batch_size=1,
+                                                 shuffle=False, num_workers=8)
 
     labels_name = testset.classes
     with torch.no_grad():
@@ -73,10 +65,8 @@ def visualize(num, testloader=None, model=None, load=None):
 
             predicted_label_name = labels_name[predicted]
             label_name = labels_name[labels]
-
-            print(
-                f"{'Correct' if label_name == predicted_label_name else 'Error'}. Predict [{label_name}] as [{predicted_label_name}]."
-            )
+            
+            print(f"{'Correct' if label_name == predicted_label_name else 'Error'}. Predict [{label_name}] as [{predicted_label_name}].")
             label_list.append(label_name)
 
             att_mat = outputs.attentions
@@ -85,11 +75,13 @@ def visualize(num, testloader=None, model=None, load=None):
 
             image_np = image.permute(1, 2, 0).cpu().numpy()
 
-            image_np = ((image_np + 1) / 2 * 255).astype(np.uint8)
+            image_np = ((image_np+1)/2 * 255).astype(np.uint8)
+
 
             image_bgr = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
             im = image_np
             # cv2.imwrite("tempim.png",image_bgr)
+
 
             # Average the attention weights across all heads.
             att_mat = torch.mean(att_mat, dim=1)
@@ -105,10 +97,8 @@ def visualize(num, testloader=None, model=None, load=None):
             joint_attentions[0] = aug_att_mat[0]
 
             for n in range(1, aug_att_mat.size(0)):
-                joint_attentions[n] = torch.matmul(
-                    aug_att_mat[n], joint_attentions[n - 1]
-                )
-
+                joint_attentions[n] = torch.matmul(aug_att_mat[n], joint_attentions[n-1])
+                
             # Attention from the output token to the input space.
             v = joint_attentions[-1]
             grid_size = int(np.sqrt(aug_att_mat.size(-1)))
@@ -126,33 +116,33 @@ def visualize(num, testloader=None, model=None, load=None):
 def show(im_list, mask_list, result_list, label_list, pickle=False):
     if pickle:
         import pickle
-
         with open("figure/visualize.pkl", "wb") as f:
             pickle.dump((im_list, mask_list, result_list, label_list), f)
     else:
-        plt.rcParams["font.size"] = 10
+        plt.rcParams['font.size'] = 10
         num = len(im_list)
-        plt.figure(figsize=(12, 4 * num))
+        plt.figure(figsize = (12,4*num))
 
         for i in range(num):
             im = im_list[i]
             mask = mask_list[i]
             result = result_list[i]
-            label_name = label_list[i]
 
-            plt.subplot(num, 3, 3 * i + 1)
-            plt.title(f"NO.{i+1}:{label_name}")
+            plt.subplot(num,3,3*i+1)
+            plt.title(f'NO.{i+1}:{label_name}')
             plt.imshow(im)
 
-            plt.subplot(num, 3, 3 * i + 2)
+            plt.subplot(num,3,3*i+2)
             plt.title("Attention")
-            plt.imshow(mask, cmap="gray")
+            plt.imshow(mask, cmap='gray')
 
-            plt.subplot(num, 3, 3 * i + 3)
-            plt.title("Attention Map")
+            plt.subplot(num,3,3*i+3)
+            plt.title('Attention Map')
             plt.imshow(result)
 
-        plt.savefig(f"figure/visualize.pdf")
+        plt.savefig(f"figure/visualize.pdf")    
+
+
 
 
 if __name__ == "__main__":

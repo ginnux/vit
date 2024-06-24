@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Load data
-with open("figure/large.pkl", "rb") as f:
+with open("figure/visualize.pkl", "rb") as f:
     data = pickle.load(f)
 
 # Plot
@@ -37,4 +37,4 @@ for i in range(num):
     plt.imshow(result)
 
 plt.tight_layout()
-plt.savefig("figure/visualize.pdf")
+plt.show()
