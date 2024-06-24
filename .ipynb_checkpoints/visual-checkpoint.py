@@ -1,5 +1,4 @@
 import torch
-import torch.nn as nn
 import torchvision
 from model import ViTForImageClassification
 import torchvision.transforms as transforms
@@ -8,16 +7,20 @@ import cv2
 import numpy as np
 from itertools import islice
 import json
+import torch.nn as nn
 
-def inference(num, testloader = None, model = None, device = "cpu"):
-    outputs_list = []
-    data_list = []
+
+
+
+def visualize(testloader=None, model=None):
+    
     # 可视化
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if model is None:
         try:
-            model = ViTForImageClassification.from_pretrained("WinKawaks/vit-small-patch16-224", output_attentions = True, attn_implementation="eager")
+            model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224", output_attentions = True, attn_implementation="eager")
             model.classifier = nn.Linear(model.classifier.in_features, 100)
-            model.load_state_dict(torch.load("pth/small.pth"))
+            model.load_state_dict(torch.load("pth/base.pth"))
             model.to(device)
         except:
             raise ValueError("Please provide a model to evaluate.")
@@ -35,24 +38,13 @@ def inference(num, testloader = None, model = None, device = "cpu"):
 
     labels_name = testset.classes
     with torch.no_grad():
-        i = 0
-        for data in iter(testloader):
-            i += 1
-            data_list.append(data)
-            images, labels = data
-            images, labels = images.to(device), labels.to(device)
-            outputs = model(images)
-            outputs_list.append(outputs)
+        choose_image = 3  # 要提取的批次索引（从1开始）
 
-    return outputs_list, data_list, labels_name
+        data = next(islice(iter(testloader), choose_image - 1, choose_image))
 
-
-
-def visualize_single(outputs, data, labels_name, idx = 0):
-    with torch.no_grad():
         images, labels = data
         images, labels = images.to(device), labels.to(device)
-
+        outputs = model(images)
         _, predicted = torch.max(outputs.logits.data, 1)
 
         predicted_label_name = labels_name[predicted]
@@ -97,60 +89,26 @@ def visualize_single(outputs, data, labels_name, idx = 0):
         mask = cv2.resize(mask / mask.max(), im.shape[:2])[..., np.newaxis]
         result = (mask * im).astype("uint8")
 
-    return im, mask, result
-
-def visualize(outputs_list, data_list, labels_name):
-    im_list = []
-    mask_list = []
-    result_list = []
-    for i in range(len(outputs_list)):
-        outputs = outputs_list[i]
-        data = data_list[i]
-        im, mask, result = visualize_single(outputs, data, labels_name)
-        im_list.append(im)
-        mask_list.append(mask)
-        result_list.append(result)
-
-    return im_list, mask_list, result_list
 
 
+        plt.figure(figsize = (12,4))
 
-def show(im_list, mask_list, result_list):
-    num = len(im_list)
-    plt.figure(figsize = (12,4*num))
-
-    for i in range(num):
-        im = im_list[i]
-        mask = mask_list[i]
-        result = result_list[i]
-
-        plt.subplot(num,3,3*i+1)
+        plt.subplot(1,3,1)
         plt.title('Original')
         plt.imshow(im)
 
-        plt.subplot(num,3,3*i+2)
+        plt.subplot(1,3,2)
         plt.title("Attention")
         plt.imshow(mask, cmap='gray')
 
-        plt.subplot(num,3,3*i+3)
+        plt.subplot(1,3,3)
         plt.title('Attention Map')
         plt.imshow(result)
 
-    plt.savefig(f"figure/visualize.png")
+        plt.savefig("visualize.png")
 
 
 
 
 if __name__ == "__main__":
-
-    num = 5
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    outputs_list, data_list, labels_name = inference(num = num, device = device)
-
-    im_list, mask_list, result_list = visualize(outputs_list, data_list)
-
-    show(im_list, mask_list, result_list)
-
-
-    
+    visualize()
