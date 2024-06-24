@@ -51,6 +51,7 @@ def visualize(num, testloader=None, model=None, load = None):
         im_list = []
         mask_list = []
         result_list = []
+        label_list = []
 
         for data in iter(testloader):
             i += 1
@@ -66,6 +67,7 @@ def visualize(num, testloader=None, model=None, load = None):
             label_name = labels_name[labels]
             
             print(f"{'Correct' if label_name == predicted_label_name else 'Error'}. Predict [{label_name}] as [{predicted_label_name}].")
+            label_list.append(label_name)
 
             att_mat = outputs.attentions
             att_mat = torch.stack(att_mat).squeeze(1).cpu()
@@ -108,14 +110,14 @@ def visualize(num, testloader=None, model=None, load = None):
             mask_list.append(mask)
             result_list.append(result)
 
-    return im_list, mask_list, result_list
+    return im_list, mask_list, result_list, label_list
 
 
-def show(im_list, mask_list, result_list, pickle=False):
+def show(im_list, mask_list, result_list, label_list, pickle=False):
     if pickle:
         import pickle
         with open("figure/visualize.pkl", "wb") as f:
-            pickle.dump((im_list, mask_list, result_list), f)
+            pickle.dump((im_list, mask_list, result_list, label_list), f)
     else:
         plt.rcParams['font.size'] = 10
         num = len(im_list)
@@ -127,7 +129,7 @@ def show(im_list, mask_list, result_list, pickle=False):
             result = result_list[i]
 
             plt.subplot(num,3,3*i+1)
-            plt.title('Original')
+            plt.title(f'NO.{i+1}:{label_name}')
             plt.imshow(im)
 
             plt.subplot(num,3,3*i+2)
@@ -144,5 +146,5 @@ def show(im_list, mask_list, result_list, pickle=False):
 
 
 if __name__ == "__main__":
-    im_list, mask_list, result_list = visualize(5)
-    show(im_list, mask_list, result_list, pickle=True)
+    im_list, mask_list, result_list, label_list = visualize(5)
+    show(im_list, mask_list, result_list, label_list, pickle=True)
