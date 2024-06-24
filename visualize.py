@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import torchvision
 from model import ViTForImageClassification
 import torchvision.transforms as transforms
@@ -34,19 +35,20 @@ def inference(num, testloader = None, model = None):
 
     labels_name = testset.classes
     with torch.no_grad():
-        for i in range(num):
-            data = next(iter(testloader))
+        i = 0
+        for data in iter(testloader):
+            i += 1
             data_list.append(data)
             images, labels = data
             images, labels = images.to(device), labels.to(device)
             outputs = model(images)
             outputs_list.append(outputs)
 
-    return outputs_list, data_list
+    return outputs_list, data_list, labels_name
 
 
 
-def visualize_single(output, data, idx = 0):
+def visualize_single(outputs, data, labels_name, idx = 0):
     with torch.no_grad():
         images, labels = data
         images, labels = images.to(device), labels.to(device)
@@ -97,14 +99,14 @@ def visualize_single(output, data, idx = 0):
 
     return im, mask, result
 
-def visualize(outputs_list, data_list):
+def visualize(outputs_list, data_list, labels_name):
     im_list = []
     mask_list = []
     result_list = []
     for i in range(len(outputs_list)):
         outputs = outputs_list[i]
         data = data_list[i]
-        im, mask, result = visualize_single(outputs, data)
+        im, mask, result = visualize_single(outputs, data, labels_name)
         im_list.append(im)
         mask_list.append(mask)
         result_list.append(result)
@@ -148,9 +150,9 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load("pth/large.pth"))
     model.to(device)
 
-    outputs, data = inference(num = num, model = model)
+    outputs_list, data_list, labels_name = inference(num = num, model = model)
 
-    im_list, mask_list, result_list = visualize(outputs, data)
+    im_list, mask_list, result_list = visualize(outputs_list, data_list)
 
     show(im_list, mask_list, result_list)
 

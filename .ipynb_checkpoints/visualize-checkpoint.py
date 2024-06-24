@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import torchvision
 from model import ViTForImageClassification
 import torchvision.transforms as transforms
@@ -8,16 +9,14 @@ import numpy as np
 from itertools import islice
 import json
 
-
-
-
-def visualize(testloader=None, model=None):
-    
+def inference(num, testloader = None, model = None):
+    outputs_list = []
+    data_list = []
     # 可视化
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if model is None:
         try:
-            model = ViTForImageClassification.from_pretrained("vit-large-patch16-224-in21k", num_labels=100, output_attentions = True, attn_implementation="eager")
+            model = ViTForImageClassification.from_pretrained("vit-base-patch16-224-in21k", num_labels=100, output_attentions = True, attn_implementation="eager")
             model.load_state_dict(torch.load("last_ckpt.pth"))
             model.to(device)
         except:
@@ -36,13 +35,24 @@ def visualize(testloader=None, model=None):
 
     labels_name = testset.classes
     with torch.no_grad():
-        choose_image = 3  # 要提取的批次索引（从1开始）
+        i = 0
+        for data in iter(testloader):
+            i += 1
+            data_list.append(data)
+            images, labels = data
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            outputs_list.append(outputs)
 
-        data = next(islice(iter(testloader), choose_image - 1, choose_image))
+    return outputs_list, data_list, labels_name
 
+
+
+def visualize_single(outputs, data, labels_name, idx = 0):
+    with torch.no_grad():
         images, labels = data
         images, labels = images.to(device), labels.to(device)
-        outputs = model(images)
+
         _, predicted = torch.max(outputs.logits.data, 1)
 
         predicted_label_name = labels_name[predicted]
@@ -87,26 +97,64 @@ def visualize(testloader=None, model=None):
         mask = cv2.resize(mask / mask.max(), im.shape[:2])[..., np.newaxis]
         result = (mask * im).astype("uint8")
 
+    return im, mask, result
+
+def visualize(outputs_list, data_list, labels_name):
+    im_list = []
+    mask_list = []
+    result_list = []
+    for i in range(len(outputs_list)):
+        outputs = outputs_list[i]
+        data = data_list[i]
+        im, mask, result = visualize_single(outputs, data, labels_name)
+        im_list.append(im)
+        mask_list.append(mask)
+        result_list.append(result)
+
+    return im_list, mask_list, result_list
 
 
-        plt.figure(figsize = (12,4))
 
-        plt.subplot(1,3,1)
+def show(im_list, mask_list, result_list):
+    num = len(im_list)
+    plt.figure(figsize = (12,4*num))
+
+    for i in range(num):
+        im = im_list[i]
+        mask = mask_list[i]
+        result = result_list[i]
+
+        plt.subplot(num,3,3*i+1)
         plt.title('Original')
         plt.imshow(im)
 
-        plt.subplot(1,3,2)
+        plt.subplot(num,3,3*i+2)
         plt.title("Attention")
         plt.imshow(mask, cmap='gray')
 
-        plt.subplot(1,3,3)
+        plt.subplot(num,3,3*i+3)
         plt.title('Attention Map')
         plt.imshow(result)
 
-        plt.savefig("visualize.png")
+    plt.savefig(f"figure/visualize.png")
 
 
 
 
 if __name__ == "__main__":
-    visualize()
+
+    num = 5
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = ViTForImageClassification.from_pretrained("google/vit-large-patch16-224", output_attentions = True, attn_implementation="eager")
+    model.classifier = nn.Linear(model.classifier.in_features, 100)
+    model.load_state_dict(torch.load("pth/large.pth"))
+    model.to(device)
+
+    outputs_list, data_list, labels_name = inference(num = num, model = model)
+
+    im_list, mask_list, result_list = visualize(outputs_list, data_list)
+
+    show(im_list, mask_list, result_list)
+
+
+    
