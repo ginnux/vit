@@ -3,13 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Load data
-with open("figure/base.pkl", "rb") as f:
+with open("figure/large.pkl", "rb") as f:
     data = pickle.load(f)
 
 # Plot
 im_list, mask_list, result_list, label_list = data
 
-plt.rcParams["font.size"] = 13
+plt.rcParams["font.size"] = 14
 plt.rcParams["font.family"] = "Times New Roman"
 num = len(im_list)
 
