@@ -1,0 +1,5 @@
+transformer==4.41.2
+tqdm==4.64.1
+numpy==1.26.4
+matplotlib==3.9.0
+opencv-python==4.10.0.82
