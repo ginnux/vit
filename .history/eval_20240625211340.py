@@ -1,9 +1,8 @@
 import torch
 import torchvision
-from transformers import ViTForImageClassification
+from model import ViTForImageClassification
 import torchvision.transforms as transforms
 from tqdm import tqdm
-import torch.nn as nn
 
 
 def eval(testloader=None, model=None):
@@ -20,7 +19,7 @@ def eval(testloader=None, model=None):
                 attn_implementation="eager",
             )
             model.classifier = nn.Linear(model.classifier.in_features, 100)
-            model.load_state_dict(torch.load("last_ckpt.pth"))
+            model.load_state_dict(torch.load("pth/base.pth"))
             model.to(device)
         except:
             raise ValueError("Please provide a model to evaluate.")

@@ -12,6 +12,3 @@ __pycache__/
 
 # pth
 last_ckpt.pth
-
-#idea
-.idea/

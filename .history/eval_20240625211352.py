@@ -1,9 +1,8 @@
 import torch
 import torchvision
-from transformers import ViTForImageClassification
+from model import ViTForImageClassification
 import torchvision.transforms as transforms
 from tqdm import tqdm
-import torch.nn as nn
 
 
 def eval(testloader=None, model=None):
