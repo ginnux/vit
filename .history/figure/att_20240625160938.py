@@ -68,32 +68,20 @@ def main():
     return mask_list
 
 
-def show(mask_list=None, im=None):
+def show(mask_list=None):
     plt.rcParams["font.size"] = 13
     plt.rcParams["font.family"] = "Times New Roman"
 
     if mask_list is None:
         with open("figure/temp.pkl", "rb") as f:
             mask_list = pickle.load(f)
-
-    if im is None:
-        with open("figure/im_temp.pkl", "rb") as f:
-            im = pickle.load(f)
-
-    plt.figure(figsize=(6, 10))
-    plt.subplot(5, 3, 2)
-    plt.axis("off")
-    plt.imshow(im)
-    plt.title("Input Image")
-
     for i in range(len(mask_list)):
         mask = mask_list[i]
-        plt.subplot(5, 3, 3 + i + 1)
+        plt.subplot(4, 3, i + 1)
         plt.axis("off")
         plt.imshow(mask, cmap="gray")
-        plt.title(f"Head-{i+1} Att.")
+        plt.title(f"Head NO.{i+1}")
 
-    plt.tight_layout()
     plt.savefig("figure/att.pdf")
 
 

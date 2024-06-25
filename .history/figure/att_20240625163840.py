@@ -91,7 +91,7 @@ def show(mask_list=None, im=None):
         plt.subplot(5, 3, 3 + i + 1)
         plt.axis("off")
         plt.imshow(mask, cmap="gray")
-        plt.title(f"Head-{i+1} Att.")
+        plt.title(f"Head Att. NO.{i+1}")
 
     plt.tight_layout()
     plt.savefig("figure/att.pdf")

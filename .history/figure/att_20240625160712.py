@@ -1,17 +1,10 @@
 import torch
-
-import matplotlib.pyplot as plt
-
-import numpy as np
-import pickle
-
-"""
-生成图像需要import的库
-import cv2
 import torchvision
 import torchvision.transforms as transforms
-"""
-
+import matplotlib.pyplot as plt
+import cv2
+import numpy as np
+import pickle
 
 def main():
     att = np.load("figure/att_example_1.npy")
@@ -54,7 +47,9 @@ def main():
         joint_attentions[0] = aug_att_mat[0]
 
         for n in range(1, aug_att_mat.size(0)):
-            joint_attentions[n] = torch.matmul(aug_att_mat[n], joint_attentions[n - 1])
+            joint_attentions[n] = torch.matmul(
+                aug_att_mat[n], joint_attentions[n - 1]
+            )
 
         # Attention from the output token to the input space.
         v = joint_attentions[-1]
@@ -68,36 +63,24 @@ def main():
     return mask_list
 
 
-def show(mask_list=None, im=None):
+
+def show(mask_list = None):
     plt.rcParams["font.size"] = 13
     plt.rcParams["font.family"] = "Times New Roman"
 
     if mask_list is None:
-        with open("figure/temp.pkl", "rb") as f:
+        with open("temp.pkl", "rb") as f:
             mask_list = pickle.load(f)
-
-    if im is None:
-        with open("figure/im_temp.pkl", "rb") as f:
-            im = pickle.load(f)
-
-    plt.figure(figsize=(6, 10))
-    plt.subplot(5, 3, 2)
-    plt.axis("off")
-    plt.imshow(im)
-    plt.title("Input Image")
-
     for i in range(len(mask_list)):
         mask = mask_list[i]
-        plt.subplot(5, 3, 3 + i + 1)
+        plt.subplot(4, 3, i+1)
         plt.axis("off")
         plt.imshow(mask, cmap="gray")
-        plt.title(f"Head-{i+1} Att.")
+        plt.title(f"Head NO.{i+1}")
 
-    plt.tight_layout()
-    plt.savefig("figure/att.pdf")
+    plt.savefig("figure/att.pdf")   
 
-
-if __name__ == "__main__":
-    # main()
+if __name__ ==  "__main__":
+    main()
     # 在安装了Times new Roman字体的情况下，可以使用下面的设置
-    show()
+    # show()
