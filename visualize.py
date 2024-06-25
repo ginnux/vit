@@ -92,6 +92,9 @@ def visualize(num, testloader=None, model=None, load=None):
             # cv2.imwrite("tempim.png",image_bgr)
 
             # Average the attention weights across all heads.
+            all_att_mat_sample = att_mat.cpu().detach().numpy()
+            np.save(f"figure/att_example_{i}.npy", all_att_mat_sample)
+
             att_mat = torch.mean(att_mat, dim=1)
 
             # To account for residual connections, we add an identity matrix to the
